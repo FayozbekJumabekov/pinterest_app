@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../models/pinterest_model.dart';
+
 class DetailPage extends StatefulWidget {
-  const DetailPage({Key? key}) : super(key: key);
+  Pinterest post;
+
+  DetailPage({required this.post, Key? key}) : super(key: key);
   static const String id = "detail_page";
 
   @override
@@ -11,6 +15,6 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(body: Container());
   }
 }

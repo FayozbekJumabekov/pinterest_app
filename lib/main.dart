@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pinterest_app/models/pinterest_model.dart';
 import 'package:pinterest_app/pages/chat_page.dart';
 import 'package:pinterest_app/pages/detail_page.dart';
 import 'package:pinterest_app/pages/control_page.dart';
@@ -42,6 +43,9 @@ class _MyAppState extends State<MyApp> {
       ),
       darkTheme: ThemeData(
         primaryColor: Colors.white,
+        listTileTheme: ListTileThemeData(
+          textColor: Colors.white
+        ),
         colorScheme: ColorScheme.fromSwatch()
             .copyWith(secondary: Colors.black54),
         textTheme: TextTheme(
@@ -62,7 +66,7 @@ class _MyAppState extends State<MyApp> {
       home: IntroPage(),
       routes: {
         ControlPage.id: (context) => ControlPage(),
-        DetailPage.id: (context) => DetailPage(),
+        DetailPage.id: (context) => DetailPage(post: Pinterest.fromJson({}),),
         SearchPage.id: (context) => SearchPage(),
         ChatPage.id: (context) => ChatPage(),
         IntroPage.id: (context) => IntroPage(),
