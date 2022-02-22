@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pinterest_app/services/log_service.dart';
+import 'package:pinterest_app/utils/bottom_sheet_widget.dart';
 import '../models/pinterest_model.dart';
 import '../services/http_service.dart';
 
@@ -137,184 +138,7 @@ class _HomePageState extends State<HomePage> {
     return showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          return Container(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      height: 10,
-                    ),
-
-                    /// Cancel button
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            CupertinoIcons.clear,
-                            size: 25,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                        TextButton(
-                          style: TextButton.styleFrom(),
-                          onPressed: () {},
-                          child: Text(
-                            "Share to",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Theme.of(context).primaryColor),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    /// Send Via Social Networks and othes
-                    SizedBox(
-                      height: 100,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          Column(
-                            children: [
-                              IconButton(
-                                  onPressed: () {},
-                                  iconSize: 60,
-                                  icon: const Image(
-                                    fit: BoxFit.cover,
-                                    image: AssetImage('assets/icons/send.png'),
-                                  )),
-                              const Text(
-                                "Send",
-                                style: TextStyle(fontSize: 12),
-                              )
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              IconButton(
-                                  onPressed: () {},
-                                  iconSize: 60,
-                                  icon: const Image(
-                                    fit: BoxFit.cover,
-                                    image:
-                                        AssetImage('assets/icons/message.png'),
-                                  )),
-                              const Text(
-                                "Message",
-                                style: TextStyle(fontSize: 12),
-                              )
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              IconButton(
-                                  onPressed: () {},
-                                  iconSize: 60,
-                                  icon: const Image(
-                                    fit: BoxFit.cover,
-                                    image: AssetImage('assets/icons/gmail.png'),
-                                  )),
-                              const Text(
-                                "Gmail",
-                                style: TextStyle(fontSize: 12),
-                              )
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              IconButton(
-                                  onPressed: () {},
-                                  iconSize: 60,
-                                  icon: const Image(
-                                    fit: BoxFit.cover,
-                                    image:
-                                        AssetImage('assets/icons/facebook.png'),
-                                  )),
-                              const Text(
-                                "Facebook",
-                                style: TextStyle(fontSize: 12),
-                              )
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              IconButton(
-                                  onPressed: () {},
-                                  iconSize: 60,
-                                  icon: const Image(
-                                    fit: BoxFit.cover,
-                                    image:
-                                        AssetImage('assets/icons/whatsapp.png'),
-                                  )),
-                              const Text(
-                                "Twitter",
-                                style: TextStyle(fontSize: 12),
-                              )
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              IconButton(
-                                  onPressed: () {},
-                                  iconSize: 60,
-                                  icon: const Image(
-                                    fit: BoxFit.cover,
-                                    image: AssetImage(
-                                        'assets/icons/copy_link.png'),
-                                  )),
-                              const Text(
-                                "Links",
-                                style: TextStyle(fontSize: 12),
-                              )
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              IconButton(
-                                  onPressed: () {},
-                                  iconSize: 60,
-                                  icon: const Image(
-                                    fit: BoxFit.cover,
-                                    image: AssetImage('assets/icons/more.png'),
-                                  )),
-                              const Text(
-                                "More",
-                                style: TextStyle(fontSize: 12),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    /// Buttons
-                    TextButton(
-                        onPressed: () {},
-                        child: Text("Download image",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Theme.of(context).primaryColor))),
-                    TextButton(
-                        onPressed: () {},
-                        child: Text("Hide Pin",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Theme.of(context).primaryColor))),
-                    TextButton(
-                        onPressed: () {},
-                        child: Text("Report Pin",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Theme.of(context).primaryColor))),
-                  ]),
-            ),
-          );
+          return BottomSheetWidget();
         });
   }
 
@@ -708,6 +532,7 @@ class _HomePageState extends State<HomePage> {
             }),
         preferredSize: Size(double.infinity, 60));
   }
+
 
   /// Will pop
   Future<bool> onWillPop() {
