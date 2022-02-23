@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:pinterest_app/models/pinterest_model.dart';
 
+import '../models/collections_model.dart';
 import 'log_service.dart';
 
 class Network {
@@ -15,12 +16,8 @@ class Network {
   /// * Http Apis *///
   static String API_LIST = "/photos";
   static String API_SEARCH_PHOTOS = '/search/photos';
+  static String API_COLLECTIONS = "/collections";
 
-  // static String API_SINGLE_LIST = "/users/"; //{id}
-  // static String API_CREATE = "/users";
-  // static String API_UPDATE = "/users/"; //{id}
-  // static String API_EDIT = "/users/"; //{id}
-  // static String API_DELETE = "/users/"; //{id}
 
   /// Getting Header ///
   static Map<String, String> getHeaders() {
@@ -76,6 +73,12 @@ class Network {
     var json = jsonDecode(response);
     var data = unSplashFromJson(jsonEncode(json['results']));
     return data;
+  }
+
+  static List<Collections> parseCollectionResponse(String response) {
+    List json = jsonDecode(response);
+    List<Collections> collections = List<Collections>.from(json.map((x) => Collections.fromJson(x)));
+    return collections;
   }
 
 }

@@ -1,12 +1,20 @@
+import 'dart:io';
+import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart';
 import 'package:lottie/lottie.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pinterest_app/services/log_service.dart';
-import 'package:pinterest_app/utils/bottom_sheet_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/pinterest_model.dart';
 import '../services/http_service.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -23,6 +31,8 @@ class _HomePageState extends State<HomePage> {
   int selectedPost = 0;
   String searchedCategory = 'All';
   bool isLoadMore = false;
+  double downloadPercent = 0;
+  bool showDownloadIndicator = false;
   bool showDraggableSheet = false;
   List<Pinterest> pinterests = [];
   List<String> categories = [
@@ -35,17 +45,6 @@ class _HomePageState extends State<HomePage> {
     "Animals",
   ];
 
-  /// Get Initial Data
-  void getPhotos() {
-    Network.GET(Network.API_LIST, Network.paramsEmpty()).then((value) => {
-          pinterests = List.from(Network.parseUnSplashList(value!)),
-
-          /// Switch off Loading lottie after Get data from Server
-          isLoading = false,
-          setState(() {}),
-        });
-  }
-
   /// Get Category Data
   void searchCategory(String category) {
     setState(() {
@@ -54,19 +53,88 @@ class _HomePageState extends State<HomePage> {
     Network.GET(Network.API_SEARCH_PHOTOS,
             Network.paramsSearch((pinterests.length ~/ 10) + 1, category))
         .then((value) => {
-              pinterests
-                  .addAll(List.from(Network.parseUnSplashSearchList(value!))),
+              pinterests.addAll(List.from(Network.parseUnSplashSearchList(value!))),
               Log.w(pinterests.length.toString()),
               setState(() {
+                /// Switch off Loading lottie after Get data from Server
+                isLoading = false;
                 isLoadMore = false;
               }),
             });
   }
 
+
+  void downloadFile(String url,String filename) async {
+    var permission = await _getPermission(Permission.storage);
+    try{
+      if(permission != false){
+
+        var httpClient = http.Client();
+        var request = http.Request('GET', Uri.parse(url));
+        var res = httpClient.send(request);
+        final response = await get(Uri.parse(url));
+        Directory generalDownloadDir = Directory('/storage/emulated/0/Download');
+        List<List<int>> chunks = [];
+        int downloaded = 0;
+
+        res.asStream().listen((http.StreamedResponse r) {
+          r.stream.listen((List<int> chunk) {
+            // Display percentage of completion
+
+            setState(() {
+              chunks.add(chunk);
+              downloaded += chunk.length;
+              showDownloadIndicator = true;
+              downloadPercent = downloaded / r.contentLength!;
+              debugPrint(downloadPercent.toString());
+
+            });
+          }, onDone: () async {
+            // Display percentage of completion
+            debugPrint('downloadPercentage: ${downloaded / r.contentLength! * 100}');
+
+            setState(() {
+              downloadPercent = 0;
+              showDownloadIndicator = false;
+              showToast();
+            });
+            // Save the file
+            File imageFile = File("${generalDownloadDir.path}/$filename.jpg");
+            Log.w(generalDownloadDir.path);
+            await imageFile.writeAsBytes(response.bodyBytes);
+            return;
+          });
+        });
+      }
+      else {
+        Log.i("Permission Denied");
+      }
+    }
+    catch(e){
+      Log.e(e.toString());
+    }
+  }
+
+
+  Future<bool> _getPermission(Permission permission) async {
+    if (await permission.isGranted) {
+      return true;
+    } else {
+      var result = await permission.request();
+
+      if (result == PermissionStatus.granted) {
+        return true;
+      } else {
+        Log.w(result.toString());
+        return false;
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    getPhotos();
+    searchCategory(searchedCategory);
   }
 
   @override
@@ -134,11 +202,211 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// BottomSheet
-  Future<dynamic> buildShowModalBottomSheet(BuildContext context) {
+  Future<dynamic> buildShowModalBottomSheet(BuildContext context,int index) {
     return showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          return BottomSheetWidget();
+          return Container(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
+
+                    /// Cancel button
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            CupertinoIcons.clear,
+                            size: 25,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        TextButton(
+                          style: TextButton.styleFrom(),
+                          onPressed: () {},
+                          child: Text(
+                            "Share to",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Theme.of(context).primaryColor),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    /// Send Via Social Networks and othes
+                    SizedBox(
+                      height: 100,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          Column(
+                            children: [
+                              IconButton(
+                                  onPressed: () async{
+                                    HapticFeedback.vibrate();
+                                    await launch("sms:?body=${Uri.encodeComponent(pinterests[index].urls!.full!)}");
+                                  },
+                                  iconSize: 60,
+                                  icon: const Image(
+                                    fit: BoxFit.cover,
+                                    image:
+                                    AssetImage('assets/icons/message.png'),
+                                  )),
+                              const Text(
+                                "Message",
+                                style: TextStyle(fontSize: 12),
+                              )
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
+                                  onPressed: () async{
+                                    await launch("mailto:?subject=Flutter&body=${Uri.encodeComponent(pinterests[index].urls!.full!)}");
+                                  },
+                                  iconSize: 60,
+                                  icon: const Image(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage('assets/icons/gmail.png'),
+                                  )),
+                              const Text(
+                                "Gmail",
+                                style: TextStyle(fontSize: 12),
+                              )
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    launch('https://facebook.com');
+                                  },
+                                  iconSize: 60,
+                                  icon: const Image(
+                                    fit: BoxFit.cover,
+                                    image:
+                                    AssetImage('assets/icons/facebook.png'),
+                                  )),
+                              const Text(
+                                "Facebook",
+                                style: TextStyle(fontSize: 12),
+                              )
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
+                                  onPressed: () async{
+                                    await launch("https://telegram.me/share/url?url=${Uri.encodeComponent(pinterests[index].urls!.full!)}");
+                                  },
+                                  iconSize: 60,
+                                  icon: const Image(
+                                    fit: BoxFit.cover,
+                                    image:
+                                    AssetImage('assets/icons/telegram.png'),
+                                  )),
+                              const Text(
+                                "Telegram",
+                                style: TextStyle(fontSize: 12),
+                              )
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
+                                  onPressed: () async{
+                                    await launch("https://api.whatsapp.com/send?text=${Uri.encodeComponent(pinterests[index].urls!.full!)}");
+                                  },
+                                  iconSize: 60,
+                                  icon: const Image(
+                                    fit: BoxFit.cover,
+                                    image:
+                                    AssetImage('assets/icons/whatsapp.png'),
+                                  )),
+                              const Text(
+                                "Whatsapp",
+                                style: TextStyle(fontSize: 12),
+                              )
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
+                                  onPressed: () async{
+                                   await Clipboard.setData(ClipboardData(text: pinterests[index].urls!.full!));
+                                   showToast(pinterests[index].urls!.full!);
+                                  },
+                                  iconSize: 60,
+                                  icon: const Image(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage(
+                                        'assets/icons/copy_link.png'),
+                                  )),
+                              const Text(
+                                "Links",
+                                style: TextStyle(fontSize: 12),
+                              )
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              IconButton(
+                                  onPressed: () {},
+                                  iconSize: 60,
+                                  icon: const Image(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage('assets/icons/more.png'),
+                                  )),
+                              const Text(
+                                "More",
+                                style: TextStyle(fontSize: 12),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    /// Buttons
+                    TextButton(
+                        onPressed: () {
+                          downloadFile(pinterests[index].links!.download!,"${pinterests[index].user!.name}${Random().nextInt(10)}");
+                          Navigator.pop(context);
+                          },
+                        child: Text("Download image",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Theme.of(context).primaryColor))),
+                    TextButton(
+                        onPressed: () {
+                          setState(() {
+                            pinterests.removeAt(index);
+                            Navigator.pop(context);
+                          });
+                        },
+                        child: Text("Hide Pin",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Theme.of(context).primaryColor))),
+                    TextButton(
+                        onPressed: () {},
+                        child: Text("Report Pin",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Theme.of(context).primaryColor))),
+                  ]),
+            ),
+          );
         });
   }
 
@@ -167,6 +435,7 @@ class _HomePageState extends State<HomePage> {
                     }
                     return true;
                   },
+                  /// full image
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -191,6 +460,7 @@ class _HomePageState extends State<HomePage> {
                                               decoration: BoxDecoration(
                                                   color: Colors.grey.shade300,
                                                   image: const DecorationImage(
+                                                      fit: BoxFit.cover,
                                                       image: AssetImage(
                                                           'assets/images/img.png'))),
                                             )),
@@ -278,7 +548,8 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         /// Message button
                                         IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                            },
                                             iconSize: 30,
                                             icon: Icon(
                                                 CupertinoIcons.chat_bubble_fill)),
@@ -300,18 +571,25 @@ class _HomePageState extends State<HomePage> {
                                             )),
 
                                         /// Save Button
-                                        Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(30),
-                                              color: Colors.red.shade800,
-                                            ),
-                                            margin: EdgeInsets.only(right: 40),
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 25, vertical: 20),
-                                            child: Text(
-                                              "Save",
-                                              style: TextStyle(color: Colors.white),
-                                            )),
+                                        GestureDetector(
+                                          onTap: (){
+                                            setState(() {
+                                              downloadFile(post.links!.download!,"${post.user!.name}${Random().nextInt(10)}");
+                                            });
+                                          },
+                                          child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(30),
+                                                color: Colors.red.shade800,
+                                              ),
+                                              margin: EdgeInsets.only(right: 40),
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 25, vertical: 20),
+                                              child: Text(
+                                                "Save",
+                                                style: TextStyle(color: Colors.white),
+                                              )),
+                                        ),
 
                                         /// Share Button
                                         IconButton(
@@ -422,6 +700,26 @@ class _HomePageState extends State<HomePage> {
                     iconSize: 30,
                     color: Colors.white,
                     icon: Icon(CupertinoIcons.back)),
+                (showDownloadIndicator) ? Align(
+                  alignment: Alignment.topCenter,
+                  child: CircularPercentIndicator(
+                    animateFromLastPercent: true,
+                    progressColor: Colors.green,
+                    backgroundColor: Colors.grey.shade200,
+                    percent: downloadPercent,
+                    radius: 30.0,
+                    lineWidth: 8.0,
+                    circularStrokeCap: CircularStrokeCap.round,
+                    center: Text(
+                      "${(downloadPercent * 100).toInt()} %",
+                      style:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0,color: Colors.white),
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
+                ) : const SizedBox.shrink(),
+
+
 
               ],
             ),
@@ -453,6 +751,7 @@ class _HomePageState extends State<HomePage> {
                     decoration: BoxDecoration(
                         color: Colors.grey.shade300,
                         image: const DecorationImage(
+                          fit: BoxFit.cover,
                             image: AssetImage('assets/images/img.png'))),
                   )),
               errorWidget: (context, url, error) => Icon(Icons.error),
@@ -482,7 +781,7 @@ class _HomePageState extends State<HomePage> {
                     ),
               IconButton(
                   onPressed: () {
-                    buildShowModalBottomSheet(context);
+                    buildShowModalBottomSheet(context,index);
                   },
                   icon: Icon(Icons.more_horiz))
             ],
@@ -548,4 +847,17 @@ class _HomePageState extends State<HomePage> {
     }
     return Future.value(true);
   }
+
+  void showToast([String? clipboard]) {
+    Fluttertoast.showToast(
+        fontSize: 16,
+        msg: (clipboard != null) ? clipboard : 'Downloaded successfully',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 2,
+        backgroundColor: Colors.white,
+        textColor: Colors.black
+    );
+  }
+
 }

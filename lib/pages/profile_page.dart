@@ -173,11 +173,12 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       children: [
         CircleAvatar(
-          radius: MediaQuery.of(context).size.width / 8,
+          radius: MediaQuery.of(context).size.width / 7,
           backgroundColor: Colors.grey.shade300,
-          child: Text(
-            "F",
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(100),
+            child: Image(
+                image: AssetImage('assets/images/im_profile.jpeg')),
           ),
           foregroundColor: Theme.of(context).primaryColor,
         ),
@@ -185,12 +186,12 @@ class _ProfilePageState extends State<ProfilePage> {
           height: 10,
         ),
         Text(
-          "Fayozbek Jumabekov",
+          "Christopher Robin",
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
         Text(
-          "@fayozbekjumabekov",
+          "@christoph123",
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),

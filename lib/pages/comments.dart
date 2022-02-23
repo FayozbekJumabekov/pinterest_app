@@ -69,3 +69,40 @@
 //       );
 //     },);
 // }
+// directory = await getExternalStorageDirectory();
+// print(generalDownloadDir.path);
+// String newPath = "";
+// List<String> folders = directory!.path.split("/");
+// for (int i = 1; i < folders.length; i++) {
+//   String folder = folders[i];
+//
+//   if (folder != "Android") {
+//     newPath += "/" + folder;
+//   } else {
+//     break;
+//   }
+// }
+// newPath += "/Pinterest";
+
+
+// final file = File('$newPath/hello');
+// final localPath = path.join(directory!.path, 'imageName');
+// Future<void> _download(String url,String name) async {
+//   Directory generalDownloadDir = Directory('/storage/emulated/0/Download');
+//   try{
+//     _getPermission(Permission.storage).then((value) async{
+//       if (value != false){
+//         final response = await get(Uri.parse(url));
+//         print(response);
+//         File imageFile = File("${generalDownloadDir.path}/$name.jpg");
+//         print(generalDownloadDir.path);
+//         await imageFile.writeAsBytes(response.bodyBytes);
+//       }
+//
+//     });
+//   }
+//   catch(e){
+//     print(e);
+//   }
+//
+// }

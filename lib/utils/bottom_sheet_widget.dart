@@ -175,7 +175,9 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                           fontSize: 18,
                           color: Theme.of(context).primaryColor))),
               TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+
+                  },
                   child: Text("Hide Pin",
                       style: TextStyle(
                           fontSize: 18,
