@@ -560,15 +560,8 @@ class _SearchPageState extends State<SearchPage> {
                   image: CachedNetworkImageProvider(
                       pinterests[index].urls!.regular!)),
               placeholder: (context, url) => AspectRatio(
-                  aspectRatio:
-                  pinterests[index].width! / pinterests[index].height!,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        image: const DecorationImage(
-                            fit: BoxFit.cover,
-                            image: AssetImage('assets/images/img.png'))),
-                  )),
+                  aspectRatio: pinterests[index].width! / pinterests[index].height!,
+                  child: ColoredBox(color: Color(int.parse(pinterests[index].color!.replaceFirst("#","0xFF"))),), ),
               errorWidget: (context, url, error) => Icon(Icons.error),
             ),
           ),

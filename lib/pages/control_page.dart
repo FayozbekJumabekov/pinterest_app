@@ -1,17 +1,13 @@
 import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
-import 'package:pinterest_app/models/pinterest_model.dart';
 import 'package:pinterest_app/pages/chat_page.dart';
 import 'package:pinterest_app/pages/home_page.dart';
 import 'package:pinterest_app/pages/profile_page.dart';
 import 'package:pinterest_app/pages/search_page.dart';
-
 import '../services/log_service.dart';
 
 class ControlPage extends StatefulWidget {
@@ -99,10 +95,10 @@ class _ControlPageState extends State<ControlPage> {
           controller: pageController,
           physics: const NeverScrollableScrollPhysics(),
           children: const [
-            HomePage(),
-            SearchPage(),
-            ChatPage(),
-            ProfilePage()
+            HomePage(key: PageStorageKey("home"),),
+            SearchPage(key: PageStorageKey("search"),),
+            ChatPage(key: PageStorageKey('chat'),),
+            ProfilePage(key: PageStorageKey("profile"),)
           ],
         ),
         floatingActionButton:(isOffline) ? null: bottomNavigation(),
