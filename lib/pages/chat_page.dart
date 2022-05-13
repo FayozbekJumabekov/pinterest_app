@@ -14,7 +14,7 @@ class ChatPage extends StatefulWidget {
   _ChatPageState createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage> with AutomaticKeepAliveClientMixin {
   int selectedCategory = 0;
   List<Collections> collections = [];
   bool isLoading = true;
@@ -125,4 +125,7 @@ class _ChatPageState extends State<ChatPage> {
           )),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pinterest_app/models/pinterest_model.dart';
 import 'package:pinterest_app/pages/chat_page.dart';
-import 'package:pinterest_app/pages/detail_page.dart';
 import 'package:pinterest_app/pages/control_page.dart';
 import 'package:pinterest_app/pages/intro_page.dart';
 import 'package:pinterest_app/pages/profile_page.dart';
@@ -21,8 +20,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  /// key
-  /// MTgfbWGliunTpETughwj_azSDlGAUS9yTy4NBGogi0c
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +67,6 @@ class _MyAppState extends State<MyApp> {
       home: IntroPage(),
       routes: {
         ControlPage.id: (context) => ControlPage(),
-        DetailPage.id: (context) => DetailPage(post: Pinterest.fromJson({}),),
         SearchPage.id: (context) => SearchPage(),
         ChatPage.id: (context) => ChatPage(),
         IntroPage.id: (context) => IntroPage(),

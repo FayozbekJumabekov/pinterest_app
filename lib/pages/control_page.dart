@@ -95,10 +95,10 @@ class _ControlPageState extends State<ControlPage> {
           controller: pageController,
           physics: const NeverScrollableScrollPhysics(),
           children: const [
-            HomePage(key: PageStorageKey("home"),),
-            SearchPage(key: PageStorageKey("search"),),
-            ChatPage(key: PageStorageKey('chat'),),
-            ProfilePage(key: PageStorageKey("profile"),)
+            HomePage(),
+            SearchPage(),
+            ChatPage(),
+            ProfilePage()
           ],
         ),
         floatingActionButton:(isOffline) ? null: bottomNavigation(),
@@ -164,7 +164,7 @@ class _ControlPageState extends State<ControlPage> {
               borderRadius: BorderRadius.circular(50),
               child: CachedNetworkImage(
                 imageUrl: "",
-                errorWidget: (context, url,dy) => Image(
+                errorWidget: (context, url,dy) => const Image(
                   width: 30,
                   height: 30,
                   image: AssetImage("assets/images/im_profile.jpeg"),

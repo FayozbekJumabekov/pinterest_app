@@ -9,7 +9,7 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClientMixin{
   ScrollController scrollController = ScrollController();
 
   bool showNameInAppBar = false;
@@ -32,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void appBarInfo() {
-    return WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    return WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       scrollController.addListener(() {
         setState(() {
           showNameInAppBar = true;
@@ -219,4 +219,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

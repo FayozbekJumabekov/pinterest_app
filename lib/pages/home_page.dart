@@ -24,7 +24,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
   DateTime? currentBackPressTime;
   bool isLoading = true;
   int selectedCategory = 0;
@@ -853,5 +853,8 @@ class _HomePageState extends State<HomePage> {
         textColor: Colors.black
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
 }

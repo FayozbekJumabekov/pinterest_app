@@ -7,7 +7,7 @@ import 'log_service.dart';
 
 class Network {
   /// Set isTester ///
-  static bool isTester = true;
+  static bool isTester = false;
 
   /// Servers Types ///
   static String SERVER_DEVELOPMENT = "api.unsplash.com";

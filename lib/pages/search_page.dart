@@ -25,7 +25,7 @@ class SearchPage extends StatefulWidget {
   _SearchPageState createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMixin {
   List<Pinterest> pinterests = [];
   bool isLoadMore = false;
   bool showDraggableSheet = false;
@@ -832,5 +832,8 @@ class _SearchPageState extends State<SearchPage> {
         textColor: Colors.black
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
 }
